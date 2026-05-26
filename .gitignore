@@ -1,0 +1,7 @@
+data/test/images/*.jpg
+data/train/images/*.jpg
+__pycache__
+old
+rag_docs/*
+test_results
+.vscode
