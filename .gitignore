@@ -5,3 +5,4 @@ old
 rag_docs/*
 test_results
 .vscode
+.pth
