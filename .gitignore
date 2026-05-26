@@ -5,4 +5,8 @@ old
 rag_docs/*
 test_results
 .vscode
-.pth
+vit_model.pth
+faiss_index.bin
+faiss_texts.pkl
+metadata.csv
+api.py
