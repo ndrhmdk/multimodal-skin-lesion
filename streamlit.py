@@ -74,7 +74,7 @@ if st.button("Analyze"):
                 
                 st.subheader("Retrieved Evidence")
                 for i, doc in enumerate(result["retrieved_docs"]):
-                    with st.expander(f"Medical Document{i+1}", expanded=True):
+                    with st.expander(f"Medical Document {i+1}", expanded=True):
                         st.write(doc)
                         
             except requests.exceptions.RequestException as e:
