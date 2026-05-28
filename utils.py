@@ -24,6 +24,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ── CONFIG ────────────────────────────────────────────────────────────
 SIMILARITY_THRESHOLD = 0.35
+OPTIMAL_THRESHOLD = 0.6441
+LOW_RISK_THRESHOLD = 0.30
+HIGH_RISK_THRESHOLD = OPTIMAL_THRESHOLD
 models = {}
 
 # ── MODEL ARCHITECTURE ────────────────────────────────────────────────
@@ -75,22 +78,24 @@ transform = transforms.Compose([
         mean=[0.485, 0.456, 0.406],
          std=[0.229, 0.224, 0.225])])
 
-# ── PREDICTION FUNCTIONS ──────────────────────────────────────────────
 def predict_img(img):
     vit_model = models["vit_model"]
-    
+
     img = img.convert("RGB")
     img = transform(img)
     img = img.unsqueeze(0).to(DEVICE)
-    
+
     with torch.no_grad():
-        outputs = vit_model(img).logits
-        prob = torch.sigmoid(outputs).item()
+        p1 = torch.sigmoid(vit_model(img).logits)
+        p2 = torch.sigmoid(vit_model(torch.flip(img, dims=[3])).logits)
+        p3 = torch.sigmoid(vit_model(torch.flip(img, dims=[2])).logits)
+        p4 = torch.sigmoid(vit_model(torch.rot90(img, 1, [2, 3])).logits)
+        prob = ((p1 + p2 + p3 + p4) / 4.0).item()
     return prob
 
 def get_risk_level(prob):
-    if prob < 0.30: return "Low"
-    elif prob < 0.70: return "Moderate"
+    if prob < LOW_RISK_THRESHOLD: return "Low"
+    elif prob < HIGH_RISK_THRESHOLD: return "Moderate"
     else: return "High"
     
 def retrieve_mmr(query, top_k=3, fetch_k=10, lambda_mult=0.7):
